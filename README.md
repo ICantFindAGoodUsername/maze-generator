@@ -7,7 +7,11 @@ https://github.com/pertbanking/bitmap-monochrome
 the library has to be on the compiler's include path
 
 maze object lifecycle:
+
   1: call maze constructor, sets maze parameters
+  
   2: call generate(), randomly generates maze
+  
   3: (optional) call asPixelMatrix() to make bitmap image, if maze is 2d
+  
   4: call maze destructor, or end program to take care of object's garbage collection
