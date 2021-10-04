@@ -1,18 +1,15 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <time.h>
-#include <string>
+#ifndef MAZE_H_
+#define MAZE_H_
 
 // monochrome bitmap library: (has to be on compiler include path)
 // https://github.com/pertbanking/bitmap-monochrome
 #include "bitmap.h"
 
-using namespace std;
+//using namespace std;
 
 // helper function for allocating memory of given type and length
 template <typename T>
-T* givenew(unsigned length) {
+T* givenew(int length) {
     T* val = new (std::nothrow) T[length];
     if (val == nullptr || length < 1) {
         std::cout << "\nmemory allocation failed, exiting\n";
@@ -23,9 +20,9 @@ T* givenew(unsigned length) {
 
 // overload of givenew<>() with a fill value
 template <typename T>
-T* givenew(unsigned length, T fill){
+T* givenew(int length, T fill){
 	T* val = givenew<T>(length);
-	for (unsigned i = 0; i < length; i++){
+	for (int i = 0; i < length; i++){
 		val[i] = fill;
 	}
 	return val;
@@ -33,44 +30,32 @@ T* givenew(unsigned length, T fill){
 
 // helper function for copying array
 template <typename T>
-T* copy(T* original, unsigned length) {
+T* copy(T* original, int length) {
 	T* result = givenew<T>(length);
-    for (unsigned i = 0; i < length; i++) {
+    for (int i = 0; i < length; i++) {
         result[i] = original[i];
     }
 	return result;
 }
 
-// helper function for counting occurrences of a value in vector
-template <typename T>
-int count_occurrences(vector<T> v, T val){
-	int count = 0;
-	for (T i : v){
-		if (i == val){
-			count++;
-		}
-	}
-	return count;
-}
-
 class maze{
 	private:
-		unsigned dimension_num, node_num, line_num;
+		int dimension_num, node_num, line_num;
 		
 		// stores size of each dimension of maze
 		int* sizes;
 		
 		// stores each line state
-		vector<bool> lines;
+		std::vector<bool> lines;
 		
 		// stores number of total lines for each direction
 		// makes line_to_index() easier/faster
 		int* dir_sizes;
 		
 		// variables used during generation process
-		vector<bool> connected_nodes;
-		vector<bool> possible_bases;
-		unsigned possible_base_num = 0;
+		std::vector<bool> connected_nodes;
+		std::vector<bool> possible_bases;
+		int possible_base_num = 0;
 		
 		// checks that position is inbounds
 		// assumes that pos0's length = dimension_num
@@ -110,7 +95,7 @@ class maze{
 		// used to index vectors connected_nodes and possible_bases
 		int node_to_index(int* pos0){
 			int sum = 0;
-			unsigned m = 1;
+			int m = 1;
 			for (int i = 0; i < dimension_num; i++){
 				sum += pos0[i] * m;
 				m = m * sizes[i];
@@ -120,7 +105,7 @@ class maze{
 		
 		//reverse of node_to_index()
 		int* index_to_node(int index){
-			unsigned m = 1;
+			int m = 1;
 			for (int i = 0; i < dimension_num; i++){
 				m = m * sizes[i];
 			}
@@ -173,8 +158,8 @@ class maze{
 		}
 		
 		// returns vector of all positions pos0 can connect to
-		vector<int*> get_connectable_nodes(int* pos0){
-			vector<int*> list (0);
+		std::vector<int*> get_connectable_nodes(int* pos0){
+			std::vector<int*> list (0);
 			for (int dir = 0; dir < dimension_num; dir++){
 			for (int sign = -1; sign <=1; sign += 2){
 				int* pos1 = copy<int>(pos0, dimension_num);
@@ -263,6 +248,10 @@ class maze{
 			line_num = 0;
 			for (int i = 0; i < dimension_num; i++){
 				node_num = node_num * sizes[i];
+				if (node_num <= 0){
+					std::cout << "\ninteger overflow during maze constructor, too many nodes";
+					exit(0);
+				}
 				int lines_d = 1;
 				for (int j = 0; j < dimension_num; j++){
 					if (i == j){
@@ -279,13 +268,13 @@ class maze{
 				dir_sizes[i] = (sizes[i] - 1) * (node_num / sizes[i]);
 			}
 			
-			lines = vector<bool>(line_num);
-			connected_nodes = vector<bool>(node_num, false);
-			possible_bases = vector<bool>(node_num, false);
+			lines = std::vector<bool>(line_num);
+			connected_nodes = std::vector<bool>(node_num, false);
+			possible_bases = std::vector<bool>(node_num, false);
 		}
 		
 		// randomly generates maze
-		void generate(bool show_progress){
+		void generate(){
 			
 			srand(time(NULL));
 			
@@ -312,7 +301,7 @@ class maze{
 				}
 				
 				// randomly choose end node
-				vector<int*> p = get_connectable_nodes(root_node);
+				std::vector<int*> p = get_connectable_nodes(root_node);
 				int s = rand() % p.size();
 				int* end_node = p[s];
 				
@@ -330,7 +319,7 @@ class maze{
 		// only usable if 2 maze is dimensional
 		PixelMatrix asPixelMatrix(){
 			if (dimension_num != 2){
-				cout << "\ntried to make pixel matrix with non 2d maze";
+				std::cout << "\ntried to make pixel matrix with non 2d maze";
 				PixelMatrix rval(1);
 				return rval;
 			}
@@ -340,7 +329,7 @@ class maze{
 			PixelMatrix result(width);
 			
 			for (int y = 0; y < height; y++){
-				vector<Pixel> row(width, false);
+				std::vector<Pixel> row(width, false);
 				if (y == 0 || y == height - 1){
 					for (int x = 0; x < width; x++){
 						//maze border, filled space
@@ -392,46 +381,4 @@ class maze{
 		}
 };
 
-int main(int argc, char** argv){
-	int dimensions;
-	cout << "maze dimensions: ";
-	cin >> dimensions;
-	if (dimensions < 1){ return 0;}
-	
-	int* sizes = givenew<int>(dimensions);
-	cout << "sizes:\n";
-	for (int i = 0; i < dimensions; i++){
-		cout << "  ";
-		cin >> sizes[i];
-		if (sizes[i] < 1){ return 0;}
-	}
-	
-	bool make_bitmap = false;
-	string file_name;
-	if (dimensions == 2){
-		cout << "since there are 2 dimensions, "
-			 << "do you want to make bmp image when done? y/n ";
-		char ans = 0;
-		cin >> ans;
-		if (ans == 'y' || ans == 'Y'){
-			make_bitmap = true;
-			cout << "file name to save bitmap to: ";
-			cin >> file_name;
-		}
-	}
-	
-	maze m(dimensions, sizes);
-	
-	m.generate(true);
-	cout << "maze generation finished";
-	
-	if (make_bitmap){
-		PixelMatrix pm = m.asPixelMatrix();
-		Bitmap bm;
-		bm.fromPixelMatrix(pm);
-		bm.save(file_name);
-		cout << " and saved to file";
-	}
-	
-	delete[] sizes;
-}
+#endif
