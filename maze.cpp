@@ -120,6 +120,7 @@ class maze{
 		}
 		
 		// get index for base position and line direction
+		// used to index lines
 		int line_to_index(int* pos0, int direction){
 			int sum = 0;
 			for (int i = 0; i < direction; i++){
@@ -175,11 +176,11 @@ class maze{
 		}
 		
 		// assumes given nodes are neighboors
-		//		and pos0 is the root of connection
+		//	and pos0 is the root of connection
 		// takes care of:
-		//		setting bit in lines[]
-		//		adding pos1 to connected_nodes
-		//		updating possible_roots for pos1 and its neighboors
+		//	setting bit in lines[]
+		//	adding pos1 to connected_nodes
+		//	updating possible_roots for pos1 and its neighboors
 		// root refers to already connected node
 		// end refers to unconnected node
 		void connect_nodes(int* root, int* end){
@@ -316,7 +317,7 @@ class maze{
 			}
 		}
 		
-		// only usable if 2 maze is dimensional
+		// only usable if maze is 2 dimensional
 		PixelMatrix asPixelMatrix(){
 			if (dimension_num != 2){
 				std::cout << "\ntried to make pixel matrix with non 2d maze";
@@ -346,6 +347,7 @@ class maze{
 							// wall intersection, filled space
 							row[x] = true;
 						} else if( (x%2) && !(y%2)){
+							// is a y-facing line between nodes
 							int* node_base = givenew<int>(2);
 							node_base[0] = (x - 1) / 2;
 							node_base[1] = (y - 2) / 2;
@@ -357,6 +359,7 @@ class maze{
 							
 							delete[] node_base;
 						} else{
+							// is a x-facing line between nodes
 							int* node_base = givenew<int>(2);
 							node_base[0] = (x - 2) / 2;
 							node_base[1] = (y - 1) / 2;
