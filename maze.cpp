@@ -5,8 +5,6 @@
 // https://github.com/pertbanking/bitmap-monochrome
 #include "bitmap.h"
 
-//using namespace std;
-
 // helper function for allocating memory of given type and length
 template <typename T>
 T* givenew(int length) {
