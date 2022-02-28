@@ -1,6 +1,7 @@
 # maze-generator
 C++ project for generating n-dimensional mazes  
 Currently, the only form of saving a maze is by making a bitmap image if the maze is 2d
+Future fix: the random selection of a node is not constant time because of my choice of data structures so algorithm is slow for larger mazes
 ## compiling
 uses a [monochrome bitmap library](https://github.com/pertbanking/bitmap-monochrome)  
 the library has to be on the compiler's include path
