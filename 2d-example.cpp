@@ -4,6 +4,7 @@ saves generated maze to bitmap file
 */
 
 #include "maze.cpp"
+#include <iostream>
 
 using namespace std;
 
